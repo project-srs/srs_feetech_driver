@@ -1,0 +1,29 @@
+<robot name="test_robot">
+  <link name="base_link"/>
+
+  <joint name="turret_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="base_link"/>
+    <child  link="turret_base_link"/>
+  </joint>
+  <link name="turret_base_link"/>
+
+  <joint name="turret_pan_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="turret_base_link"/>
+    <child  link="turret_pan_link"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-1.5707" upper="1.5707" effort="1.0" velocity="3.0"/>
+  </joint>
+  <link name="turret_pan_link"/>
+
+  <joint name="turret_tilt_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="turret_pan_link"/>
+    <child  link="turret_tilt_link"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="-1.5707" upper="1.5707" effort="1.0" velocity="3.0"/>
+  </joint>
+  <link name="turret_tilt_link"/>
+
+</robot>
