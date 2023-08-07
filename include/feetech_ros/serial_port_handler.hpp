@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
-#include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <unistd.h>
+
+#include <string>
 #include <vector>
 
 class SerialPortHandler
@@ -35,8 +36,7 @@ public:
     // store configuration
     tcsetattr(fd_, TCSANOW, &conf_tio);
 
-    if (fd_ < 0)
-    {
+    if (fd_ < 0) {
       printf("fail to open port\n");
       return false;
     }
@@ -44,21 +44,17 @@ public:
     return true;
   }
 
-  void SetVerbose(void) {
-    verbose_ = true;
-  }
+  void SetVerbose(void) { verbose_ = true; }
 
   bool Write(const std::vector<unsigned char> buffer)
   {
-    if (fd_ < 0)
-    {
+    if (fd_ < 0) {
       printf("fd not initialized\n");
       return false;
     }
     if (verbose_) {
       printf("write[%lu] ", buffer.size());
-      for (auto b : buffer)
-      {
+      for (auto b : buffer) {
         printf("%x ", b);
       }
       printf("\n");
@@ -70,20 +66,17 @@ public:
 
   std::vector<unsigned char> Read(void)
   {
-    if (fd_ < 0)
-    {
+    if (fd_ < 0) {
       printf("fd not initialized\n");
       return {};
     }
     std::vector<unsigned char> buffer;
     buffer.resize(256);
     int recv_num = read(fd_, buffer.data(), buffer.size());
-    if (0 < recv_num)
-    {
+    if (0 < recv_num) {
       if (verbose_) {
         printf("recv[%lu] ", (size_t)recv_num);
-        for (size_t i = 0; i < (size_t)recv_num; i++)
-        {
+        for (size_t i = 0; i < (size_t)recv_num; i++) {
           printf("%x ", buffer[i]);
         }
         printf("\n");

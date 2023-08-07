@@ -1,19 +1,22 @@
-#include <rclcpp/rclcpp.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <sensor_msgs/msg/joint_state.hpp>
-#include <nav_msgs/msg/odometry.hpp>
 #include <tf2_ros/transform_broadcaster.h>
-using namespace std::chrono_literals;
-using namespace std::placeholders; // NOLINT
 
-struct AxisParameters{
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
+using namespace std::chrono_literals;
+using namespace std::placeholders;  // NOLINT
+
+struct AxisParameters
+{
   int id{};
   ServoConfig config{};
   std::string joint_name{};
   bool reverse{};
 };
 
-struct PanTiltParameters{
+struct PanTiltParameters
+{
   // common
   std::string frame_id{};
   std::string child_frame_id{};
@@ -33,8 +36,8 @@ public:
     odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", 1);
     joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", 1);
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-    twist_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>("cmd_rate", 10,
-        std::bind(&PanTiltRosIf::onTwistReceived, this, std::placeholders::_1));
+    twist_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
+      "cmd_rate", 10, std::bind(&PanTiltRosIf::onTwistReceived, this, std::placeholders::_1));
     timer_ = this->create_wall_timer(50ms, std::bind(&PanTiltRosIf::onTimer, this));
 
     // common parameters
@@ -56,7 +59,8 @@ public:
     this->declare_parameter<bool>("tilt.reverse", false);
   }
 
-  PanTiltParameters getParameters(void) {
+  PanTiltParameters getParameters(void)
+  {
     PanTiltParameters output{};
     // common
     this->get_parameter("frame_id", output.frame_id);
@@ -82,17 +86,14 @@ protected:
   virtual void onTimer() = 0;
   virtual void onTwistReceived(const geometry_msgs::msg::TwistStamped::SharedPtr msg) = 0;
 
-  void publishOdometry(const nav_msgs::msg::Odometry &msg)
-  {
-    odom_pub_->publish(msg);
-  }
+  void publishOdometry(const nav_msgs::msg::Odometry & msg) { odom_pub_->publish(msg); }
 
-  void publishJointState(const sensor_msgs::msg::JointState &msg)
+  void publishJointState(const sensor_msgs::msg::JointState & msg)
   {
     joint_state_pub_->publish(msg);
   }
 
-  void broadcastTF(const geometry_msgs::msg::TransformStamped& msg)
+  void broadcastTF(const geometry_msgs::msg::TransformStamped & msg)
   {
     tf_broadcaster_->sendTransform(msg);
   }

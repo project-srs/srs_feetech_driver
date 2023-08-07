@@ -1,5 +1,6 @@
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <feetech_ros/feetech_handler.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+
 #include "pan_tilt_ros_if.hpp"
 
 class PanTiltNode : public PanTiltRosIf
@@ -9,7 +10,7 @@ public:
   {
     printf("start feetech\n");
     parameters_ = getParameters();
-    std::map<int,ServoConfig> config_list;
+    std::map<int, ServoConfig> config_list;
     config_list[parameters_.pan.id] = parameters_.pan.config;
     config_list[parameters_.tilt.id] = parameters_.tilt.config;
     bool open_success = feetech_handler_.Initialize(config_list);
@@ -46,14 +47,16 @@ private:
     }
   }
 
-  void onTwistReceived(const geometry_msgs::msg::TwistStamped::SharedPtr msg) override {
+  void onTwistReceived(const geometry_msgs::msg::TwistStamped::SharedPtr msg) override
+  {
     setCommand(msg->twist.angular.z, parameters_.pan);
     setCommand(msg->twist.angular.y, parameters_.tilt);
   }
 
-  void setCommand(const float value, const AxisParameters& param) {
+  void setCommand(const float value, const AxisParameters & param)
+  {
     float tick_per_s = param.reverse ? -value * tick_per_rad_ : value * tick_per_rad_;
-    if (std::abs(tick_per_s) < 5) { // hold
+    if (std::abs(tick_per_s) < 5) {  // hold
       auto status_opt = feetech_handler_.GetStatus(param.id);
       if (status_opt) {
         feetech_handler_.SetCommand(param.id, status_opt.value().position, 1);
@@ -64,16 +67,19 @@ private:
       int temporary_position = 0 < tick_per_s ? 4096 : 0;
       feetech_handler_.SetCommand(param.id, temporary_position, std::abs(tick_per_s));
     }
-    usleep(1000); // guard wait
+    usleep(1000);  // guard wait
   }
 
-  struct SingleJointState {
+  struct SingleJointState
+  {
     std::string joint_name;
     float position{0.0f};
     float velocity{0.0f};
   };
 
-  nav_msgs::msg::Odometry GenerateOdometry(const SingleJointState& pan_joint_status, const SingleJointState& tilt_joint_status) const {
+  nav_msgs::msg::Odometry GenerateOdometry(
+    const SingleJointState & pan_joint_status, const SingleJointState & tilt_joint_status) const
+  {
     nav_msgs::msg::Odometry output;
     output.header.frame_id = parameters_.frame_id;
     output.header.stamp = now();
@@ -84,10 +90,12 @@ private:
     // rate
     output.twist.twist.linear.y = tilt_joint_status.velocity;
     output.twist.twist.linear.z = pan_joint_status.velocity;
-    return output;  
+    return output;
   }
 
-  sensor_msgs::msg::JointState GenerateJointstate(const SingleJointState& pan_joint_status, const SingleJointState& tilt_joint_status) const {
+  sensor_msgs::msg::JointState GenerateJointstate(
+    const SingleJointState & pan_joint_status, const SingleJointState & tilt_joint_status) const
+  {
     sensor_msgs::msg::JointState output;
     output.header.stamp = now();
     output.name.push_back(pan_joint_status.joint_name);
@@ -99,11 +107,15 @@ private:
     return output;
   }
 
-  geometry_msgs::msg::TransformStamped generateTransform(const SingleJointState& pan_joint_status, const SingleJointState& tilt_joint_status) const {
+  geometry_msgs::msg::TransformStamped generateTransform(
+    const SingleJointState & pan_joint_status, const SingleJointState & tilt_joint_status) const
+  {
     geometry_msgs::msg::TransformStamped transform;
     transform.header.stamp = now();
-    transform.header.frame_id = parameters_.frame_id;;
-    transform.child_frame_id = parameters_.child_frame_id;;
+    transform.header.frame_id = parameters_.frame_id;
+    ;
+    transform.child_frame_id = parameters_.child_frame_id;
+    ;
     // rpy -> quat
     tf2::Quaternion quat_tf;
     quat_tf.setRPY(0.0f, tilt_joint_status.position, pan_joint_status.position);
@@ -111,7 +123,9 @@ private:
     return transform;
   }
 
-  SingleJointState getSingleJointState(const ServoStatus& status, const AxisParameters& param) const {
+  SingleJointState getSingleJointState(
+    const ServoStatus & status, const AxisParameters & param) const
+  {
     float scale = param.reverse ? -1.0f : 1.0f;
     SingleJointState output;
     output.joint_name = param.joint_name;
@@ -126,7 +140,8 @@ private:
   static constexpr int tick_per_rad_ = 651.9f;
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char * argv[])
+{
   rclcpp::init(argc, argv);
   auto pan_tilt_node = std::make_shared<PanTiltNode>();
   rclcpp::spin(pan_tilt_node);
