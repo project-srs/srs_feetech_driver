@@ -11,6 +11,9 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 add_executable(sample1
   src/test_node.cpp)
@@ -39,6 +42,9 @@ ament_target_dependencies(pan_tilt_node
   "rclcpp"
   "geometry_msgs"
   "sensor_msgs"
+  "nav_msgs"
+  "tf2_geometry_msgs"
+  "tf2_ros"
 )
 install(
   TARGETS pan_tilt_node

@@ -20,8 +20,8 @@ protected:
     if (2 <= msg->axes.size()) {
       geometry_msgs::msg::TwistStamped twist;
       twist.header = msg->header;
-      twist.twist.angular.y = 0.5f * msg->axes[0];
-      twist.twist.angular.z = -0.5f * msg->axes[1];
+      twist.twist.angular.y = -0.5f * msg->axes[0];
+      twist.twist.angular.z = 0.5f * msg->axes[1];
       twist_pub_->publish(twist);
     }
   }
