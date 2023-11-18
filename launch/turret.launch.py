@@ -15,7 +15,7 @@ import os
 
 
 def generate_launch_description():
-    default_model_path = get_package_share_path('feetech_ros') / 'urdf/turret.urdf'
+    default_model_path = get_package_share_path('srs_feetech_driver') / 'urdf/turret.urdf'
     robot_description = ParameterValue(Command(['xacro ', LaunchConfiguration('model')]), value_type=str)
 
     return LaunchDescription([
@@ -26,16 +26,16 @@ def generate_launch_description():
             parameters=[{'robot_description': robot_description}]
         ),
         Node(
-            package='feetech_ros',
+            package='srs_feetech_driver',
             executable='pan_tilt_node',
         ),
         Node(
-            package='feetech_ros',
+            package='srs_feetech_driver',
             executable='joy_to_cmd_rate',
         ),
         Node(
             package='rviz2',
             executable='rviz2',
-            arguments=['-d', str(get_package_share_path('feetech_ros') / 'rviz/turret.rviz')],
+            arguments=['-d', str(get_package_share_path('srs_feetech_driver') / 'rviz/turret.rviz')],
         ),
     ])

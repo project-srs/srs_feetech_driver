@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <feetech_ros/feetech_handler.hpp>
+#include <srs_feetech_driver/feetech_handler.hpp>
 
 int main(int argc, char *argv[])
 {
+  (void)argc;
+  (void)argv;
+
   printf("Start\n");
   FeetechHandler feetech_handler;
 
